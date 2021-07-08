@@ -4,9 +4,9 @@ import (
 	"encoding/json"
 	"fmt"
 	"github.com/gofiber/fiber/v2"
+	"github.com/gofiber/template/html"
 	"log"
 	"math/rand"
-	"net/http"
 	"os"
 	"time"
 )
@@ -21,7 +21,10 @@ var (
 
 func main() {
 	// Fiber instance
-	app := fiber.New()
+	engine := html.New("./views", ".html")
+	app := fiber.New(fiber.Config{
+		Views: engine,
+	})
 
 	// Routes
 	app.Get("/", hello)
@@ -45,5 +48,8 @@ func init() {
 func hello(c *fiber.Ctx) error {
 	rand.Seed(time.Now().UnixNano())
 	data := quotes[rand.Intn(len(quotes))].Data
-	return c.Status(http.StatusOK).JSON(data)
+
+	return c.Render("index", fiber.Map{
+		"Title": data,
+	})
 }
